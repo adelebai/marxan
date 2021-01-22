@@ -55,7 +55,7 @@ int iOptimisationCalcPenalties = 1;
 int savelog;
 int verbosity = 0;
 int asymmetricconnectivity = 0;
-string sVersionString = "Marxan v 4.0.0 alpha";
+string sVersionString = "Marxan v 4.0.1 alpha";
 string sIanBallEmail = "ian.ball@aad.gov.au";
 string sHughPossinghamEmail = "hugh.possingham@tnc.org";
 string sMattWattsEmail= "matt.watts@une.edu.au";
