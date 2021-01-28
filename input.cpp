@@ -32,6 +32,24 @@ namespace marxan {
         return tokens;
     }
 
+
+    stringstream stream_line(const std::string& str)
+    {
+        static const string delimeters(" ,;:^*\"/\t\'\\\n");
+        stringstream ss;
+        for (char ch : str)
+        {
+            if (delimeters.find_first_of(ch) == string::npos)
+                ss<<ch;
+            else
+            {
+                ss << ' ';
+            }
+        }
+        return ss;
+    }
+
+
     vector<string> GetFieldNames(string fname, ifstream& fp, const vector<string>& varList)
     {
         vector<string> fieldNames;
@@ -383,11 +401,10 @@ namespace marxan {
             if (sLine.empty())
                 continue;
             icount++;
-            vector<string> tokens = get_tokens(sLine);
-            stringstream(tokens[0]) >> id1;
-            stringstream(tokens[1]) >> id2;
-            stringstream(tokens[2]) >> fcost;
-
+            stringstream ss = stream_line(sLine);
+            ss >> id1 >> id2 >> fcost;
+            if (ss.fail())
+                displayErrorMessage("File %s have incorrect values at line %d.\n", readname.c_str(), line_num);
             try
             {
                 id1 = PULookup.at(id1);
@@ -518,15 +535,14 @@ namespace marxan {
             if (sLine.empty())
                 continue;
             iSMSize++;
-            vector<string> tokens = get_tokens(sLine);
-            stringstream(tokens[0]) >> _spid;
-            stringstream(tokens[1]) >> _puid;
-            stringstream(tokens[2]) >> amount;
+            stringstream ss = stream_line(sLine);
+            ss >> _spid >> _puid >> amount;
 
             if (fProb2D == 1)
-            {
-                stringstream(tokens[3]) >> rProbability;
-            }
+                ss >> rProbability;
+
+            if (ss.fail())
+                displayErrorMessage("File %s have incorrect values at line %d.\n", readname.c_str(), line_num);
 
             int old_puid;
             try {
@@ -597,9 +613,10 @@ namespace marxan {
         {
             if (sLine.empty())
                 continue;
-            vector<string> tokens = get_tokens(sLine);
-            stringstream(tokens[0]) >> iSPID;
-            stringstream(tokens[1]) >> rPenalty;
+            stringstream ss = stream_line(sLine);
+            ss >> iSPID >> rPenalty;
+            if (ss.fail())
+                displayErrorMessage("File %s have incorrect values at line %d.\n", readname.c_str(), line_num);
 
             i = SPLookup[iSPID];
             spec[i].rUserPenalty = rPenalty;
@@ -640,10 +657,10 @@ namespace marxan {
             if (sLine.empty())
                 continue;
 
-            vector<string> tokens = get_tokens(sLine);
-            stringstream(tokens[0]) >> _spid;
-            stringstream(tokens[1]) >> _puid;
-            stringstream(tokens[2]) >> amount;
+            stringstream ss = stream_line(sLine);
+            ss >> _spid >> _puid >> amount;
+            if (ss.fail())
+                displayErrorMessage("File %s have incorrect values at line %d.\n", readname.c_str(), line_num);
 
             int old_puid;
             try {
