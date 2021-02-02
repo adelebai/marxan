@@ -818,9 +818,7 @@ namespace marxan {
     // apply settings from the block defintion file for species
     void setBlockDefinitions(int gspno, int spno, int puno, vector<sgenspec>& gspec, vector<sspecies>& spec, vector<spustuff>& PU, vector<spu>& SM)
     {
-        int igsp, isp, ipu;
-        double totalamount;
-
+        int igsp, isp;
         for (igsp = 0; igsp < gspno; igsp++)
         {
             if (gspec[igsp].prop > 0) // deal with percentage in a different way
@@ -1548,7 +1546,6 @@ namespace marxan {
     {
         double threshpen = 0;
         int threshtype = 1; /*Debugging line. This should be input parameter not hardwired */
-        double tchangeconnection, tresconnection;
 #ifdef DEBUGCHECKCHANGE
         char debugline[200];
 #endif
@@ -2246,8 +2243,7 @@ namespace marxan {
     {
         long int itime, i, j, itemp = 0, snapcount, ichanges = 0, iGoodChange;
         long int iRowCounter, iRowLimit, iFluctuationCount;
-        double rFluctuationMagnitude, rThreshold, rThresholdMultiplier,
-            rAcceptanceProbability;
+        double rThreshold, rAcceptanceProbability, rFluctuationMagnitude;
         string tempname1, tempname2, sRun = to_string(irun);
         FILE* fp = nullptr, * ttfp = nullptr, * Rfp = nullptr;
         string writename, sDecayType;
@@ -2459,7 +2455,6 @@ namespace marxan {
     {
         int puvalid = 0, i, j, ipu = 0, imode, ichoice, iRowCounter, iRowLimit;
         vector<int> iimparray;
-        double debugfloat;
         string tempname2, sRun = to_string(irun);
         FILE* ttfp = nullptr, * Rfp = nullptr;
         string writename;

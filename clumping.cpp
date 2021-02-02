@@ -215,9 +215,7 @@ namespace marxan {
     /** Assumes Set Species Clumps has been called **/
     void SpeciesAmounts4(int isp, vector<sspecies>& spec, int clumptype) {
         double ftemp;
-        struct sclumps* pclump;
-
-        for (sclumps pclump : spec[isp].head) {
+        for (const sclumps& pclump : spec[isp].head) {
             ftemp = PartialPen4(isp, pclump.amount, spec, clumptype);
             spec[isp].amount += ftemp;
             spec[isp].occurrence += pclump.occs * (ftemp > 0);
@@ -299,9 +297,9 @@ namespace marxan {
     void AddNewPU(int ipu, int isp, const vector<sconnections>& connections, vector<sspecies>& spec, const vector<spustuff>& pu,
         const vector<spu>& SM, vector<spu_out>& SM_out, int clumptype) {
         int ineighbours = 0;
-        int iclumpno, iClump;
+        int iClump;
         sclumps temp;
-        double ftemp, rAmount;
+        double ftemp, rAmount = 0.0;
 
         for (const sneighbour& pnbr : connections[ipu].first) {
             // Check all the neighbours to see if any are already in clumps */
@@ -404,7 +402,6 @@ namespace marxan {
         sclumps pclump;
         //struct sclumppu *cppu,*ppu, *clumpcurr, *tppu;
         int cppu;
-        struct sneighbour* pnbr;
         double oldamount, newamount = 0.0, rAmount;
         int newoccs;
 
@@ -522,7 +519,7 @@ namespace marxan {
         vector<sspecies>& spec, const vector<spustuff>& pu, double cm, int clumptype) {
 
         vector<sclumps> newno;
-        int j, ipu, iputotal = 0;
+        int j, iputotal = 0;
         int ineighbours = 0, iclumpno, badspecies = 0;
         double totalamount = 0, dummy = 0;
         int idummy;
@@ -772,6 +769,8 @@ namespace marxan {
             case 2:
                 if (spec[isp].target2)
                     return (amount / spec[isp].target2 * amount);
+                else
+                    return(0.0);
             default:
                 return(0.0);
             }
@@ -782,7 +781,7 @@ namespace marxan {
     double ValueAdd(int isp, int ipu, int puno, const vector<int>& R, const vector<sconnections>& connections, const vector<spustuff>& pu,
         const vector<spu>& SM, const vector<spu_out>& SM_out, const vector<sspecies>& spec, int clumptype) {
 
-        int ineighbours = 0, iclumpid, iseparation;
+        int ineighbours = 0, iclumpid, iseparation = 0;
         vector<sneighbour> pnbr;
         vector<sclumps> head;
         vector<sclumps> sepclump;
@@ -1079,7 +1078,7 @@ namespace marxan {
 
         vector<sseplist> Dist;
         vector<int> head;
-        int sepcount, bestsep = 0, i, currcol;
+        int sepcount, bestsep = 0, currcol;
         double targetdist;
 
         targetdist = spec[isp].sepdistance * spec[isp].sepdistance;
@@ -1180,7 +1179,6 @@ namespace marxan {
         if (spec[isp].target2)
         {
             // deal with clumping species differently from non-clumping
-            int tempClumpId;
             if (imode == 1)
             {
                 if (newno.empty()) {
@@ -1231,7 +1229,6 @@ namespace marxan {
         // first is only needed if maximum is at 0, sepnum is the target separation
         int placefound, currtarget, bestsep = 0;
         int currsep;
-        struct slink* temp;
 
         int i = 0;
         for (int id : head) {

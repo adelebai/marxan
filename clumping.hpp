@@ -12,6 +12,7 @@ namespace marxan {
     typedef struct sseplist {
         int size;
         vector<int> head;
+        sseplist() : size(0) {}
     } sseplist;
 
     // clumping
