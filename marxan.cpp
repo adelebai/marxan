@@ -2241,14 +2241,14 @@ namespace marxan {
         long int repeats, int irun, string savename, double misslevel,
         int aggexist, double costthresh, double tpf1, double tpf2, int clumptype, sanneal& anneal)
     {
-        long int itime, i, j, itemp = 0, snapcount, ichanges = 0, iGoodChange;
+        long int itime, i, j, itemp = 0, snapcount = 0, ichanges = 0, iGoodChange;
         long int iRowCounter, iRowLimit, iFluctuationCount;
         double rThreshold, rAcceptanceProbability, rFluctuationMagnitude;
         string tempname1, tempname2, sRun = to_string(irun);
         FILE* fp = nullptr, * ttfp = nullptr, * Rfp = nullptr;
         string writename, sDecayType;
         vector<int> PUChosen;
-        long int iTests = 0, iIterations;
+        long int iTests = 0, iIterations = 0;
         uniform_real_distribution<double> float_range(0.0, 1.0);
 
         if (iQADECAYTYPE == 0)
