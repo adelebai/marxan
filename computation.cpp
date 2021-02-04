@@ -249,6 +249,9 @@ namespace marxan {
     }
 
 
+
+
+
     // ********* Connection Cost Type 2 **************
     // **  Requires R[]. imode2 = 0 there is no negative cost for removing connection, we are calling from ReserveCost
     //                         or 1 there is a negative cost for removing connection, we are calling from Annealing
@@ -258,81 +261,82 @@ namespace marxan {
     double ConnectionCost2(const sconnections& connection, const vector<int>& R, int imode, int imode2, double cm,
         int asymmetricconnectivity, int fOptimiseConnectivityIn)
     {
-        double fcost = connection.fixedcost * imode;
-        int R_pu1;
+        double fcost;
+        if (imode == 1)
+            fcost = connection.fixedcost;
+        else
+            fcost = -connection.fixedcost;
 
         if (asymmetricconnectivity)
         {
-            for (const sneighbour& p : connection.first)
+            if (imode2) // calling from Annealing
             {
-                if (imode2) // calling from Annealing
-                {
-                    // determines if ipu is currently switched on or not
-                    // if imode==1 then we assume currently switched off, and will switch on.
-                    if (imode == 1)
-                        R_pu1 = 0;
-                    else
-                        R_pu1 = 1;
+                // determines if ipu is currently switched on or not
+                // if imode==1 then we assume currently switched off, and will switch on.
+                bool R_pu1;
+                if (imode == 1)
+                    R_pu1 = false;
+                else
+                    R_pu1 = true;
 
+                for (const sneighbour& p : connection.first)
+                {
                     if (p.connectionorigon)
                     {
                         if (R[p.nbr] == 0)
                         {
-                            if (R_pu1 == 1)
-                            {
+                            if (R_pu1)
                                 fcost -= p.cost;
-                            }
                             else
-                            {
                                 fcost += p.cost;
-                            }
                         }
                     }
                     else
                     {
                         if (R[p.nbr] == 1 || R[p.nbr] == 2)
                         {
-                            if (R_pu1 == 1)
-                            {
+                            if (R_pu1)
                                 fcost += p.cost;
-                            }
                             else
-                            {
                                 fcost -= p.cost;
-                            }
                         }
                     }
                 }
-                else // calling from ReserveCost
+            }
+            else // calling from ReserveCost
+            {
+                for (const sneighbour& p : connection.first)
                 {
+
                     if (R[p.nbr] == 0)
                         if (p.connectionorigon)
-                        {
                             fcost += p.cost;
-                        }
                 }
             }
         }
         else
         {
-            for (const sneighbour& p : connection.first) // treatment for symmetric connectivity
-            {
-                if (fOptimiseConnectivityIn == 1)
-                { // optimise for "Connectivity In"
+            if (fOptimiseConnectivityIn == 1)
+            { // optimise for "Connectivity In"
+                for (const sneighbour& p : connection.first) // treatment for symmetric connectivity
+                {
                     if (R[p.nbr] == 1 || R[p.nbr] == 2)
                     {
                         fcost += imode * p.cost;
                     }
                     else
                     {
-                        fcost += imode * imode2 * p.cost * -1;
+                        fcost -= imode * imode2 * p.cost;
                     }
                 }
-                else
-                { // optimise for "Connectivity Edge"
+            }
+            else
+            { // optimise for "Connectivity Edge"
+                for (const sneighbour& p : connection.first) // treatment for symmetric connectivity
+                {
                     if (R[p.nbr] == 1 || R[p.nbr] == 2)
                     {
-                        fcost += imode * imode2 * p.cost * -1;
+                        fcost -= imode * imode2 * p.cost;
                     }
                     else
                     {
