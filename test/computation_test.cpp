@@ -149,15 +149,15 @@ TEST(ComputationTestsGroup, ConnectionCost2_test_simple)
     R.push_back(1);
 
     // Cost should only be fixed cost
-    CHECK_EQUAL(50.0, ConnectionCost2(connections[ipu], R, 1, 1, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
-    CHECK_EQUAL(-50.0, ConnectionCost2(connections[ipu], R, -1, 1, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(50.0, ConnectionCost2(connections[ipu], R, true, true, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(-50.0, ConnectionCost2(connections[ipu], R, false, true, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
 
     // with cm multiplier
-    CHECK_EQUAL(750.0, ConnectionCost2(connections[ipu], R, 1, 1, 15.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(750.0, ConnectionCost2(connections[ipu], R, true, true, 15.0, asymmetricconnectivity, fOptimiseConnectivityIn));
 
     // asymmetric
     asymmetricconnectivity = 1;
-    CHECK_EQUAL(50.0, ConnectionCost2(connections[ipu], R, 1, 1, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(50.0, ConnectionCost2(connections[ipu], R, true, true, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
 }
 
 TEST(ComputationTestsGroup, ConnectionCost2_test_2_neighbours)
@@ -183,21 +183,21 @@ TEST(ComputationTestsGroup, ConnectionCost2_test_2_neighbours)
     // The second cost is similar but imode2=0 so we exclude connection cost. Therefore no change in cost
     // The third cost is removing a pu and including connection cost change
     // The behaviour of this function is undefined if imode2=0 and imode=-1
-    CHECK_EQUAL(50.0 - 30.0, ConnectionCost2(connections[ipu], R, 1, 1, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
-    CHECK_EQUAL(50.0, ConnectionCost2(connections[ipu], R, 1, 0, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
-    CHECK_EQUAL(-50.0 + 30.0, ConnectionCost2(connections[ipu], R, -1, 1, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(50.0 - 30.0, ConnectionCost2(connections[ipu], R, true, true, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(50.0, ConnectionCost2(connections[ipu], R, true, false, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(-50.0 + 30.0, ConnectionCost2(connections[ipu], R, false, true, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
 
     // perform another set of checks but this time for ipu=1
     ipu = 1;
-    CHECK_EQUAL(2.0 - 30.0, ConnectionCost2(connections[ipu], R, 1, 1, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
-    CHECK_EQUAL(2.0, ConnectionCost2(connections[ipu], R, 1, 0, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
-    CHECK_EQUAL(-2 + 30.0, ConnectionCost2(connections[ipu], R, -1, 1, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(2.0 - 30.0, ConnectionCost2(connections[ipu], R, true, true, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(2.0, ConnectionCost2(connections[ipu], R, true, false, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(-2 + 30.0, ConnectionCost2(connections[ipu], R, false, true, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
 
     // repeat but now pu 0 is removed
     R[0] = 0;
-    CHECK_EQUAL(2.0 + 30.0, ConnectionCost2(connections[ipu], R, 1, 1, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
-    CHECK_EQUAL(2.0 + 30.0, ConnectionCost2(connections[ipu], R, 1, 0, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
-    CHECK_EQUAL(-2 - 30.0, ConnectionCost2(connections[ipu], R, -1, 1, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(2.0 + 30.0, ConnectionCost2(connections[ipu], R, true, true, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(2.0 + 30.0, ConnectionCost2(connections[ipu], R, true, false, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(-2 - 30.0, ConnectionCost2(connections[ipu], R, false, true, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
 }
 
 // Asymmetric connectivity means we incur the cost if the destination pu is active, but origin isn't.
@@ -223,21 +223,21 @@ TEST(ComputationTestsGroup, ConnectionCost2_test_asymmetricconnectivity1) {
 
     // In the case where both PU are turned on, the connection cost is not incurred
     // This is apparent for imode=1 as we are turning on the origin node, thereby removing the cost.
-    CHECK_EQUAL(50.0 - 30.0, ConnectionCost2(connections[ipu], R, 1, 1, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
-    CHECK_EQUAL(-50.0 + 30.0, ConnectionCost2(connections[ipu], R, -1, 1, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(50.0 - 30.0, ConnectionCost2(connections[ipu], R, true, true, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(-50.0 + 30.0, ConnectionCost2(connections[ipu], R, false, true, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
 
     // perform another set of checks but this time for ipu=1
     ipu = 1;
     // imode==1 should result in no connection change since origin (pu=0) was on already. 
-    CHECK_EQUAL(2.0, ConnectionCost2(connections[ipu], R, 1, 1, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
-    CHECK_EQUAL(-2.0, ConnectionCost2(connections[ipu], R, -1, 1, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(2.0, ConnectionCost2(connections[ipu], R, true, true, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(-2.0, ConnectionCost2(connections[ipu], R, false, true, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
 
     // repeat but now pu 0 is removed
     R[0] = 0;
 
     // Now that origin is removed, switching on pu1 will incur the connection cost
-    CHECK_EQUAL(2.0 + 30.0, ConnectionCost2(connections[ipu], R, 1, 1, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
-    CHECK_EQUAL(-2.0 - 30.0, ConnectionCost2(connections[ipu], R, -1, 1, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(2.0 + 30.0, ConnectionCost2(connections[ipu], R, true, true, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(-2.0 - 30.0, ConnectionCost2(connections[ipu], R, false, true, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
 }
 
 
@@ -265,18 +265,18 @@ TEST(ComputationTestsGroup, ConnectionCost2_test_asymmetricconnectivity2) {
 
     // For imode=1 as we are turning on the origin node, thereby removing the cost. 
     // However imode2 is on so negative connections are not included.
-    CHECK_EQUAL(50.0, ConnectionCost2(connections[ipu], R, 1, 0, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(50.0, ConnectionCost2(connections[ipu], R, true, false, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
 
     // perform another set of checks but this time for ipu=1
     ipu = 1;
     // imode==1 should result in no connection change since origin (pu=0) was on already. 
-    CHECK_EQUAL(2.0, ConnectionCost2(connections[ipu], R, 1, 0, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(2.0, ConnectionCost2(connections[ipu], R, true, false, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
 
     // repeat but now pu 0 is removed
     R[0] = 0;
 
     // Now that origin is removed, switching on pu1 will incur the connection cost
-    CHECK_EQUAL(2.0 + 30.0, ConnectionCost2(connections[ipu], R, 1, 0, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
+    CHECK_EQUAL(2.0 + 30.0, ConnectionCost2(connections[ipu], R, true, false, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn));
 }
 
 TEST(ComputationTestsGroup, computeSpecProp_test) {

@@ -540,7 +540,7 @@ namespace marxan {
         {
             if (R[i] == 1 || R[i] == 2)
             {
-                connectiontemp += ConnectionCost2(connections[i], R, 1, 0, 1, asymmetricconnectivity, fOptimiseConnectivityIn);
+                connectiontemp += ConnectionCost2(connections[i], R, true, false, 1.0, asymmetricconnectivity, fOptimiseConnectivityIn);
             }
         }
         return connectiontemp;

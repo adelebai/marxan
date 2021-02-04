@@ -1479,7 +1479,7 @@ namespace marxan {
             {
                 reserve.cost += pu[j].cost;
                 reserve.pus += 1;
-                rConnectivityValue = ConnectionCost2(connections[j], R, 1, 0, cm, asymmetricconnectivity, fOptimiseConnectivityIn);
+                rConnectivityValue = ConnectionCost2(connections[j], R, true, false, cm, asymmetricconnectivity, fOptimiseConnectivityIn);
                 reserve.connection += rConnectivityValue;
 
 #ifdef DEBUG_RESERVECOST
@@ -1568,7 +1568,7 @@ namespace marxan {
 #endif
 
         change.cost = pu[ipu].cost * imode; /* Cost of this PU on it's own */
-        change.connection = ConnectionCost2(connections[ipu], R, imode, 1, cm, asymmetricconnectivity, fOptimiseConnectivityIn);
+        change.connection = ConnectionCost2(connections[ipu], R, imode == 1, true, cm, asymmetricconnectivity, fOptimiseConnectivityIn);
 
 
         change.penalty = computeChangePenalty(ipu, puno, spec, pu, SM, SM_out, R, connections, imode, clumptype, change.shortfall);
@@ -1657,7 +1657,7 @@ namespace marxan {
 #endif
 
             change.cost += pu[j].cost * imode; /* Cost of this PU on it's own */
-            change.connection += ConnectionCost2(connections[j], R, imode, 1, cm, asymmetricconnectivity, fOptimiseConnectivityIn);
+            change.connection += ConnectionCost2(connections[j], R, imode == 1, true, cm, asymmetricconnectivity, fOptimiseConnectivityIn);
             if (threshtype == 1)
             {
                 tchangeconnection = change.connection;

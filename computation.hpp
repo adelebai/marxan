@@ -139,12 +139,13 @@ namespace marxan {
         double& ftarget, int& itargetocc, double& penalty, double cm, int asymmetricconnectivity);
 
     // ********* Connection Cost Type 2 **************
-    // **  Requires R[]. imode2 = 0 there is no negative cost for removing connection, we are calling from ReserveCost
+    // **  Requires R[]. mode_cost_to_remove = false there is no negative cost for removing connection, we are calling from ReserveCost
     //                         or 1 there is a negative cost for removing connection, we are calling from Annealing
-    //                   imode = -1 we are removing the planning unit from a reserve, calling from Annealing
-    //                        or 1  we are adding the planning unit to a reserve, or it is already in reserve
+    //                   mode_add_unit = false we are removing the planning unit from a reserve, calling from Annealing
+    //                        or true  we are adding the planning unit to a reserve, or it is already in reserve
     //      It seems that the behaviour of this function is undefined/unsupported if imode2=0 and imode=-1
-    double ConnectionCost2(const sconnections& connection, const vector<int>& R, int imode, int imode2, double cm,
-        int asymmetricconnectivity, int fOptimiseConnectivityIn);
+    double ConnectionCost2(const sconnections& connection, const vector<int>& R, bool mode_add_unit, bool mode_cost_to_remove, double cm,
+        int asymmetricconnectivity, bool fOptimiseConnectivityIn);
+
 
 } // namespace marxan

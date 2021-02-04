@@ -253,28 +253,28 @@ namespace marxan {
 
 
     // ********* Connection Cost Type 2 **************
-    // **  Requires R[]. imode2 = 0 there is no negative cost for removing connection, we are calling from ReserveCost
+    // **  Requires R[]. mode_cost_to_remove = false there is no negative cost for removing connection, we are calling from ReserveCost
     //                         or 1 there is a negative cost for removing connection, we are calling from Annealing
-    //                   imode = -1 we are removing the planning unit from a reserve, calling from Annealing
-    //                        or 1  we are adding the planning unit to a reserve, or it is already in reserve
+    //                   mode_add_unit = false we are removing the planning unit from a reserve, calling from Annealing
+    //                        or true  we are adding the planning unit to a reserve, or it is already in reserve
     //      It seems that the behaviour of this function is undefined/unsupported if imode2=0 and imode=-1
-    double ConnectionCost2(const sconnections& connection, const vector<int>& R, int imode, int imode2, double cm,
-        int asymmetricconnectivity, int fOptimiseConnectivityIn)
+    double ConnectionCost2(const sconnections& connection, const vector<int>& R, bool mode_add_unit, bool mode_cost_to_remove, double cm,
+        int asymmetricconnectivity, bool fOptimiseConnectivityIn)
     {
         double fcost;
-        if (imode == 1)
+        if (mode_add_unit)
             fcost = connection.fixedcost;
         else
             fcost = -connection.fixedcost;
 
         if (asymmetricconnectivity)
         {
-            if (imode2) // calling from Annealing
+            if (mode_cost_to_remove) // calling from Annealing
             {
                 // determines if ipu is currently switched on or not
                 // if imode==1 then we assume currently switched off, and will switch on.
                 bool R_pu1;
-                if (imode == 1)
+                if (mode_cost_to_remove == 1)
                     R_pu1 = false;
                 else
                     R_pu1 = true;
@@ -307,7 +307,6 @@ namespace marxan {
             {
                 for (const sneighbour& p : connection.first)
                 {
-
                     if (R[p.nbr] == 0)
                         if (p.connectionorigon)
                             fcost += p.cost;
@@ -316,31 +315,60 @@ namespace marxan {
         }
         else
         {
-            if (fOptimiseConnectivityIn == 1)
+            if (fOptimiseConnectivityIn)
             { // optimise for "Connectivity In"
-                for (const sneighbour& p : connection.first) // treatment for symmetric connectivity
+                if (mode_add_unit)
                 {
-                    if (R[p.nbr] == 1 || R[p.nbr] == 2)
+                    for (const sneighbour& p : connection.first) // treatment for symmetric connectivity
                     {
-                        fcost += imode * p.cost;
-                    }
-                    else
-                    {
-                        fcost -= imode * imode2 * p.cost;
+                        if (R[p.nbr] == 1 || R[p.nbr] == 2)
+                            fcost += p.cost;
+                        else
+                        {
+                            if (mode_cost_to_remove)
+                                fcost -= p.cost;
+                        }
                     }
                 }
+                else
+                    for (const sneighbour& p : connection.first) // treatment for symmetric connectivity
+                    {
+                        if (R[p.nbr] == 1 || R[p.nbr] == 2)
+                            fcost -= p.cost;
+                        else
+                        {
+                            if (mode_cost_to_remove)
+                                fcost += p.cost;
+                        }
+                    }
             }
             else
             { // optimise for "Connectivity Edge"
-                for (const sneighbour& p : connection.first) // treatment for symmetric connectivity
+                
+                if (mode_add_unit)
                 {
-                    if (R[p.nbr] == 1 || R[p.nbr] == 2)
+                    for (const sneighbour& p : connection.first) // treatment for symmetric connectivity
                     {
-                        fcost -= imode * imode2 * p.cost;
+                        if (R[p.nbr] == 1 || R[p.nbr] == 2)
+                        {
+                            if (mode_cost_to_remove)
+                                fcost -= p.cost;
+                        }
+                        else
+                            fcost += p.cost;
                     }
-                    else
+                }
+                else
+                {
+                    for (const sneighbour& p : connection.first) // treatment for symmetric connectivity
                     {
-                        fcost += imode * p.cost;
+                        if (R[p.nbr] == 1 || R[p.nbr] == 2)
+                        {
+                            if (mode_cost_to_remove)
+                                fcost += p.cost;
+                        }
+                        else
+                            fcost -= p.cost;
                     }
                 }
             }

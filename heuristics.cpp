@@ -38,7 +38,7 @@ namespace marxan {
         double currpen, currcost, currscore;
 
         currpen = GreedyPen(ipu, puno, spno, spec, R, pu, SM, SM_out, clumptype);
-        currcost = pu[ipu].cost + ConnectionCost2(connections[ipu], R, 1, 1, cm, asymmetricconnectivity, fOptimiseConnectivityIn);
+        currcost = pu[ipu].cost + ConnectionCost2(connections[ipu], R, true, true, cm, asymmetricconnectivity, fOptimiseConnectivityIn);
         if (currcost <= 0)
         {
             currscore = -1.0 / delta;
@@ -111,7 +111,7 @@ namespace marxan {
             currpen = newamount - fold;
         } // Add new penalty if species isn't already in the system
 
-        currcost = pu[ipu].cost + ConnectionCost2(connections[ipu], R, 1, 1, cm, asymmetricconnectivity, fOptimiseConnectivityIn);
+        currcost = pu[ipu].cost + ConnectionCost2(connections[ipu], R, true, true, cm, asymmetricconnectivity, fOptimiseConnectivityIn);
         if (currcost <= 0)
         {
             currscore = -1.0 / delta;
