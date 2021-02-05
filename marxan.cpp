@@ -1281,6 +1281,82 @@ namespace marxan {
         return(badspecies);
     } // computePenaltiesOptimise
 
+
+
+    double computeChangePenaltyNoClumping(int ipu,  vector<sspecies>& spec, const vector<spustuff>& pu, const vector<spu>& SM,  int imode, double& rShortfall)
+    {
+        int i, ism, isp;
+        double fractionAmount, penalty, newamount, tamount;
+        double rOldShortfall, rNewAmountHeld, rNewShortfall;
+
+        rShortfall = 0;
+        penalty = 0;
+
+        if (pu[ipu].richness)
+        {
+            for (i = 0; i < pu[ipu].richness; i++)
+            {
+                ism = pu[ipu].offset + i;
+                isp = SM[ism].spindex;
+                if (SM[ism].amount != 0.0)  /** Only worry about PUs where species occurs and target != 0 **/
+                {
+                    fractionAmount = 0;
+                    newamount = 0; /* Shortfall */
+
+                    rOldShortfall = 0;
+                    rNewShortfall = 0;
+
+                    if (spec[isp].target > spec[isp].amount && spec[isp].target != 0)
+                    {
+                        fractionAmount = (spec[isp].target - spec[isp].amount) / spec[isp].target;
+                        rOldShortfall = spec[isp].target - spec[isp].amount;
+                    }
+
+                    rNewAmountHeld = spec[isp].amount + (SM[ism].amount * imode);
+                    if (spec[isp].target > rNewAmountHeld)
+                        rNewShortfall = spec[isp].target - rNewAmountHeld;
+                    rShortfall += rNewShortfall - rOldShortfall;
+
+                    // does this species have occurrence target?
+                    if (spec[isp].targetocc > 0)
+                    {
+                        if (spec[isp].targetocc > spec[isp].occurrence)
+                            fractionAmount += ((double)spec[isp].targetocc - (double)spec[isp].occurrence) /
+                            (double)spec[isp].targetocc;
+
+                        if (spec[isp].target && spec[isp].targetocc)
+                            fractionAmount /= 2;
+                    }
+
+
+                    {
+                        if (spec[isp].target)
+                            newamount = computeSpeciesPlanningUnitPenalty(isp, spec, SM, ism, imode) / spec[isp].target;
+                        if (spec[isp].targetocc)
+                        {
+                            tamount = (double)(spec[isp].targetocc - spec[isp].occurrence - imode) /
+                                (double)spec[isp].targetocc;
+                            newamount += tamount < 0 ? 0 : tamount;
+                        }
+                        if (spec[isp].target && spec[isp].targetocc)
+                            newamount /= 2;
+                    }
+
+                    penalty += spec[isp].penalty * spec[isp].spf * (newamount - fractionAmount);
+
+                }
+
+            }
+        }
+        if (isinf(penalty) != 0)
+        {
+            printf("computeChangePenalty infinite fractionAmount >%g<\n", penalty);
+        }
+        return (penalty);
+    } // computeChangePenalty
+
+
+
     // compute change in the species representation for adding or removing a single planning unit or set of planning units
     double computeChangePenalty(int ipu, int puno, vector<sspecies>& spec, const vector<spustuff>& pu, const vector<spu>& SM, vector<spu_out>& SM_out,
         const vector<int>& R, const vector<sconnections>& connections, int imode, int clumptype, double& rShortfall)
@@ -1289,9 +1365,6 @@ namespace marxan {
         double fractionAmount, penalty, newamount, tamount;
         double rOldShortfall, rNewAmountHeld, rNewShortfall;
         vector<sclumps> tempSclumps;
-#ifdef DEBUGCHANGEPEN
-        char debugline[200];
-#endif
 
 #ifdef ANNEALING_TEST
         if (ipu == (puno - 1))
@@ -1373,14 +1446,6 @@ namespace marxan {
                     penalty += spec[isp].penalty * spec[isp].spf * (newamount - fractionAmount);
 
                 }
-
-#ifdef DEBUGCHANGEPEN
-                sprintf(debugline, "%i,%i,%i,%i,%g,%g,%i,%i,%i,%g,%g,%g\n",
-                    ipu, pu[ipu].id, isp, spec[isp].name, penalty, spec[isp].target,
-                    spec[isp].targetocc, spec[isp].occurrence, spec[isp].sepnum,
-                    spec[isp].amount, newamount, fractionAmount);
-                appendDebugFile("debug_MarOpt_ChangePen.csv", debugline, fnames);
-#endif
             }
         }
 
