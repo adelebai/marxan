@@ -2217,6 +2217,32 @@ namespace marxan {
         rTemperature = 1;
         uniform_int_distribution<int> int_range(0, puno - 1);
 
+
+        //It is possible to precompute penalty scores if there is no clums options
+        vector<spu_penalty> pu_no_clumps_penalty;
+        bool compute_clumps = false;
+        //Find out if we don't have clump otions
+        for (const sspecies& spec_it : spec)
+        {
+            if (spec_it.target2 != 0.0 || spec_it.sepnum != 0)
+            {
+                compute_clumps = true;
+                break;
+            }
+        }
+
+        if (!compute_clumps)
+        {
+            pu_no_clumps_penalty.resize(puno);
+            for (int ipu = 0; ipu < puno; ipu++)
+            {
+                pu_no_clumps_penalty[i].penalty_add = computeChangePenalty(ipu, puno, spec, pu, SM, SM_out, R, connections, 1, clumptype, pu_no_clumps_penalty[i].shortfall_add);
+                pu_no_clumps_penalty[i].penalty_remove = computeChangePenalty(ipu, puno, spec, pu, SM, SM_out, R, connections, 1, clumptype, pu_no_clumps_penalty[i].shortfall_remove);
+            }
+
+        }
+
+
         for (itime = 1; itime <= anneal.iterations; itime++)
         {
             // Choose random pu. If PU is set > 1 then that pu is fixed and cannot be changed.
@@ -2226,7 +2252,7 @@ namespace marxan {
             }
 
             itemp = R[ipu] == 1 ? -1 : 1;  /* Add or Remove PU ? */
-            computeChangeScore(itime, ipu, spno, puno, pu, connections, spec, SM, SM_out, R, cm, itemp, change, reserve,
+            computeChangeScore(itime, ipu, spno, puno, pu, pu_no_clumps_penalty,compute_clumps, connections, spec, SM, SM_out, R, cm, itemp, change, reserve,
                 costthresh, tpf1, tpf2, (double)itime / (double)anneal.iterations, clumptype);
 
             /* Need to calculate Appropriate temperature in isGoodChange or another function */

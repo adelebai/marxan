@@ -39,8 +39,15 @@ namespace marxan {
     {
         double penalty_add;
         double penalty_remove;
+        double shortfall_add;
+        double shortfall_remove;
 
-        spu_penalty() : penalty_add(0.0), penalty_remove(0.0) {}
+        spu_penalty() : 
+            penalty_add(0.0), 
+            penalty_remove(0.0), 
+            shortfall_add(0.0), 
+            shortfall_remove(0.0)
+        {}
 
         double get(int mode) const
         {
