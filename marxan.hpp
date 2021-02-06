@@ -33,10 +33,16 @@ namespace marxan {
     void computeReserveValue(int puno, int spno, const vector<int>& R, const vector<spustuff>& pu,
         const vector<sconnections>& connections, const vector<spu>& SM, vector<spu_out>& SM_out,
         double cm, vector<sspecies>& spec, int aggexist, scost& reserve, int clumptype, stringstream& logBuffer);
+
     void computeChangeScore(int iIteration, int ipu, int spno, int puno, const vector<spustuff>& pu, const vector<sconnections>& connections,
         vector<sspecies>& spec, const vector<spu>& SM, vector<spu_out>& SM_out, const vector<int>& R, double cm, int imode,
         scost& change, scost& reserve, double costthresh, double tpf1, double tpf2,
         double timeprop, int clumptype);
+    void computeChangeScore(int iIteration, int ipu, int spno, int puno, const vector<spustuff>& pu, const vector<spu_penalty>& pu_no_clumps_penalty, bool compute_clumps, const vector<sconnections>& connections,
+        vector<sspecies>& spec, const vector<spu>& SM, vector<spu_out>& SM_out, const vector<int>& R, double cm, int imode,
+        scost& change, scost& reserve, double costthresh, double tpf1, double tpf2,
+        double timeprop, int clumptype);
+
     void doChange(int ipu, int puno, vector<int>& R, scost& reserve, scost& change,
         const vector<spustuff>& pu, const vector<spu>& SM, vector<spu_out>& SM_out, vector<sspecies>& spec, const vector<sconnections>& connections,
         int imode, int clumptype, stringstream& logBuffer);

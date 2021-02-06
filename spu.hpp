@@ -35,4 +35,20 @@ namespace marxan {
         int richness, offset, probrichness, proboffset;
     } spustuff;
 
+    typedef struct spu_penalty
+    {
+        double penalty_add;
+        double penalty_remove;
+
+        spu_penalty() : penalty_add(0.0), penalty_remove(0.0) {}
+
+        double get(int mode) const
+        {
+            if (mode == 1)
+                return penalty_add;
+            else
+                return penalty_remove;
+        }
+    } spu_penalty;
+
 } // namespace marxan

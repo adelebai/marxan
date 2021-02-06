@@ -1619,7 +1619,7 @@ namespace marxan {
         return(tpf1 * exp(tpf2 * timeprop));
     }
 
-    void computeChangeScore(int iIteration, int ipu, int spno, int puno, const vector<spustuff>& pu, const vector<sconnections>& connections,
+    void computeChangeScore(int iIteration, int ipu, int spno, int puno, const vector<spustuff>& pu, const vector<spu_penalty>& pu_no_clumps_penalty, bool compute_clumps, const vector<sconnections>& connections,
         vector<sspecies>& spec, const vector<spu>& SM, vector<spu_out>& SM_out, const vector<int>& R, double cm, int imode,
         scost& change, scost& reserve, double costthresh, double tpf1, double tpf2,
         double timeprop, int clumptype)
@@ -1635,8 +1635,10 @@ namespace marxan {
         change.cost = pu[ipu].cost * imode; /* Cost of this PU on it's own */
         change.connection = ConnectionCost2(connections[ipu], R, imode, 1, cm, asymmetricconnectivity, fOptimiseConnectivityIn);
 
-
-        change.penalty = computeChangePenalty(ipu, puno, spec, pu, SM, SM_out, R, connections, imode, clumptype, change.shortfall);
+        if (compute_clumps)
+            change.penalty = computeChangePenalty(ipu, puno, spec, pu, SM, SM_out, R, connections, imode, clumptype, change.shortfall);
+        else
+            change.penalty = pu_no_clumps_penalty[ipu].get(imode);
 
         if (costthresh)
         {
@@ -1680,6 +1682,19 @@ namespace marxan {
         appendDebugFile("debug_MarOpt_CheckChange.csv", debugline, fnames);
 #endif
     } // computeChangeScore
+
+    void computeChangeScore(int iIteration, int ipu, int spno, int puno, const vector<spustuff>& pu, const vector<sconnections>& connections,
+        vector<sspecies>& spec, const vector<spu>& SM, vector<spu_out>& SM_out, const vector<int>& R, double cm, int imode,
+        scost& change, scost& reserve, double costthresh, double tpf1, double tpf2,
+        double timeprop, int clumptype)
+    {
+        static const const vector<spu_penalty> dummy_spu_penalty;
+        computeChangeScore(iIteration, ipu, spno, puno, pu, dummy_spu_penalty, true, connections,
+            spec, SM, SM_out, R, cm, imode,
+            change, reserve, costthresh, tpf1, tpf2,
+            timeprop, clumptype);
+    }
+
 
     // compute change in the objective function score for adding or removing a set of planning units
     void computeQuantumChangeScore(int spno, int puno, const vector<spustuff>& pu, const vector<sconnections>& connections,
