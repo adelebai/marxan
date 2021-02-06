@@ -2236,8 +2236,8 @@ namespace marxan {
             pu_no_clumps_penalty.resize(puno);
             for (int ipu = 0; ipu < puno; ipu++)
             {
-                pu_no_clumps_penalty[i].penalty_add = computeChangePenalty(ipu, puno, spec, pu, SM, SM_out, R, connections, 1, clumptype, pu_no_clumps_penalty[i].shortfall_add);
-                pu_no_clumps_penalty[i].penalty_remove = computeChangePenalty(ipu, puno, spec, pu, SM, SM_out, R, connections, 1, clumptype, pu_no_clumps_penalty[i].shortfall_remove);
+                pu_no_clumps_penalty[ipu].penalty_add = computeChangePenalty(ipu, puno, spec, pu, SM, SM_out, R, connections, 1, clumptype, pu_no_clumps_penalty[ipu].shortfall_add);
+                pu_no_clumps_penalty[ipu].penalty_remove = computeChangePenalty(ipu, puno, spec, pu, SM, SM_out, R, connections, -1, clumptype, pu_no_clumps_penalty[ipu].shortfall_remove);
             }
 
         }
