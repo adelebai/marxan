@@ -49,13 +49,22 @@ namespace marxan {
             shortfall_remove(0.0)
         {}
 
-        double get(int mode) const
+        double get_penalty(int mode) const
         {
             if (mode == 1)
                 return penalty_add;
             else
                 return penalty_remove;
         }
+
+        double get_shortfall(int mode) const
+        {
+            if (mode == 1)
+                return shortfall_add;
+            else
+                return shortfall_remove;
+        }
+
     } spu_penalty;
 
 } // namespace marxan

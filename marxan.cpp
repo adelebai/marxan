@@ -1638,7 +1638,10 @@ namespace marxan {
         if (compute_clumps)
             change.penalty = computeChangePenalty(ipu, puno, spec, pu, SM, SM_out, R, connections, imode, clumptype, change.shortfall);
         else
-            change.penalty = pu_no_clumps_penalty[ipu].get(imode);
+        {
+            change.penalty = pu_no_clumps_penalty[ipu].get_penalty(imode);
+            change.shortfall = pu_no_clumps_penalty[ipu].get_shortfall(imode);
+        }
 
         if (costthresh)
         {
