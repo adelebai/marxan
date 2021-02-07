@@ -1289,14 +1289,6 @@ namespace marxan {
         double fractionAmount, penalty, newamount, tamount;
         double rOldShortfall, rNewAmountHeld, rNewShortfall;
         vector<sclumps> tempSclumps;
-#ifdef DEBUGCHANGEPEN
-        char debugline[200];
-#endif
-
-#ifdef ANNEALING_TEST
-        if (ipu == (puno - 1))
-            appendTraceFile("computeChangePenalty start\n");
-#endif
 
         rShortfall = 0;
         penalty = 0;
@@ -1361,36 +1353,13 @@ namespace marxan {
                         if (spec[isp].sepnum)
                             newamount += computeSepPenalty(CountSeparation2(isp, ipu, tempSclumps, puno, R, pu, SM, SM_out, spec, imode),
                                 spec[isp].sepnum); /* I need a new function here */
-#ifdef ANNEALING_TEST
-                        if (ipu == (puno - 1))
-                        {
-                            appendTraceFile("penalty %g spf %g newamount %g fractionAmount %g target %g amount %g\n",
-                                spec[isp].penalty, spec[isp].spf, newamount, fractionAmount, spec[isp].target, spec[isp].amount);
-                        }
-#endif
                     } /* no target2 */
 
                     penalty += spec[isp].penalty * spec[isp].spf * (newamount - fractionAmount);
 
                 }
-
-#ifdef DEBUGCHANGEPEN
-                sprintf(debugline, "%i,%i,%i,%i,%g,%g,%i,%i,%i,%g,%g,%g\n",
-                    ipu, pu[ipu].id, isp, spec[isp].name, penalty, spec[isp].target,
-                    spec[isp].targetocc, spec[isp].occurrence, spec[isp].sepnum,
-                    spec[isp].amount, newamount, fractionAmount);
-                appendDebugFile("debug_MarOpt_ChangePen.csv", debugline, fnames);
-#endif
             }
         }
-
-#ifdef ANNEALING_TEST
-        if (ipu == (puno - 1))
-        {
-            sprintf(debugbuffer, "computeChangePenalty end penalty %g\n", penalty);
-            appendTraceFile(debugbuffer);
-        }
-#endif
 
         if (isinf(penalty) != 0)
         {
