@@ -1283,11 +1283,11 @@ namespace marxan {
 
     // compute change in the species representation for adding or removing a single planning unit or set of planning units
     double computeChangePenalty(int ipu, int puno, vector<sspecies>& spec, const vector<spustuff>& pu, const vector<spu>& SM, vector<spu_out>& SM_out,
-        const vector<int>& R, const vector<sconnections>& connections, int imode, int clumptype, double& rShortfall)
+        const vector<int>& R, const vector<sconnections>& connections, int imode, int clumptype, double& rShortfall, bool penalty_precomputed = false)
     {
         int i, ism, isp;
-        double fractionAmount, penalty, newamount, tamount;
-        double rOldShortfall, rNewAmountHeld, rNewShortfall;
+        double penalty, newamount;
+        double rNewAmountHeld, rNewShortfall;
         vector<sclumps> tempSclumps;
 
         rShortfall = 0;
@@ -1299,40 +1299,23 @@ namespace marxan {
             {
                 ism = pu[ipu].offset + i;
                 isp = SM[ism].spindex;
+                sspecies& spec_isp = spec[isp];
+
+                if (!penalty_precomputed)
+                    spec_isp.update_penalty_components();
+
                 if (SM[ism].amount != 0.0)  /** Only worry about PUs where species occurs and target != 0 **/
                 {
-                    fractionAmount = 0;
-                    newamount = 0; /* Shortfall */
+                    newamount = 0.0; /* Shortfall */
+                    rNewShortfall = 0.0;
 
-                    rOldShortfall = 0;
-                    rNewShortfall = 0;
+                    rNewAmountHeld = spec_isp.amount + (SM[ism].amount * imode);
 
-                    if (spec[isp].target > spec[isp].amount && spec[isp].target != 0)
-                    {
-                        fractionAmount = (spec[isp].target - spec[isp].amount) / spec[isp].target;
-                        rOldShortfall = spec[isp].target - spec[isp].amount;
-                    }
+                    if (spec_isp.target > rNewAmountHeld)
+                        rNewShortfall = spec_isp.target - rNewAmountHeld;
+                    rShortfall += rNewShortfall - spec_isp.shortFall;
 
-                    rNewAmountHeld = spec[isp].amount + (SM[ism].amount * imode);
-                    if (spec[isp].target > rNewAmountHeld)
-                        rNewShortfall = spec[isp].target - rNewAmountHeld;
-                    rShortfall += rNewShortfall - rOldShortfall;
-
-                    // does this species have occurrence target?
-                    if (spec[isp].targetocc > 0)
-                    {
-                        if (spec[isp].targetocc > spec[isp].occurrence)
-                            fractionAmount += ((double)spec[isp].targetocc - (double)spec[isp].occurrence) /
-                            (double)spec[isp].targetocc;
-
-                        if (spec[isp].target && spec[isp].targetocc)
-                            fractionAmount /= 2;
-                    }
-
-                    if (spec[isp].sepnum)
-                        fractionAmount += computeSepPenalty(spec[isp].separation, spec[isp].sepnum);
-
-                    if (spec[isp].target2)
+                    if (spec_isp.target2)
                     {
                         /* clumping species */
                         /* New Pen 4 includes occurrences, amounts and separation target */
@@ -1340,22 +1323,23 @@ namespace marxan {
                     }
                     else
                     {
-                        if (spec[isp].target)
-                            newamount = computeSpeciesPlanningUnitPenalty(isp, spec, SM, ism, imode) / spec[isp].target;
-                        if (spec[isp].targetocc)
+                        if (spec_isp.is_target)
+                            newamount = computeSpeciesPlanningUnitPenalty(isp, spec, SM, ism, imode) / spec_isp.target;
+                        if (spec_isp.targetocc)
                         {
-                            tamount = (double)(spec[isp].targetocc - spec[isp].occurrence - imode) /
-                                (double)spec[isp].targetocc;
-                            newamount += tamount < 0 ? 0 : tamount;
+                            if (imode == 1)
+                                newamount += spec_isp.tamount_add;
+                            else
+                                newamount += spec_isp.tamount_remove;
                         }
-                        if (spec[isp].target && spec[isp].targetocc)
+                        if (spec_isp.target && spec_isp.targetocc)
                             newamount /= 2;
-                        if (spec[isp].sepnum)
+                        if (spec_isp.sepnum)
                             newamount += computeSepPenalty(CountSeparation2(isp, ipu, tempSclumps, puno, R, pu, SM, SM_out, spec, imode),
-                                spec[isp].sepnum); /* I need a new function here */
+                                spec_isp.sepnum); /* I need a new function here */
                     } /* no target2 */
 
-                    penalty += spec[isp].penalty * spec[isp].spf * (newamount - fractionAmount);
+                    penalty += spec_isp.penalty_mult_spf * (newamount - spec_isp.fractionAmount);
 
                 }
             }
@@ -1526,7 +1510,7 @@ namespace marxan {
     void computeChangeScore(int iIteration, int ipu, int spno, int puno, const vector<spustuff>& pu, const vector<sconnections>& connections,
         vector<sspecies>& spec, const vector<spu>& SM, vector<spu_out>& SM_out, const vector<int>& R, double cm, int imode,
         scost& change, scost& reserve, double costthresh, double tpf1, double tpf2,
-        double timeprop, int clumptype)
+        double timeprop, int clumptype, bool penalty_precomputed)
         // imode = 1 add PU, imode = -1 remove PU
     {
         double threshpen = 0;
@@ -1540,7 +1524,7 @@ namespace marxan {
         change.connection = ConnectionCost2(connections[ipu], R, imode, 1, cm, asymmetricconnectivity, fOptimiseConnectivityIn);
 
 
-        change.penalty = computeChangePenalty(ipu, puno, spec, pu, SM, SM_out, R, connections, imode, clumptype, change.shortfall);
+        change.penalty = computeChangePenalty(ipu, puno, spec, pu, SM, SM_out, R, connections, imode, clumptype, change.shortfall, penalty_precomputed);
 
         if (costthresh)
         {
@@ -1781,6 +1765,8 @@ namespace marxan {
                         vector<sclumps> tempSclumps;
                         spec[isp].separation = CountSeparation2(isp, 0, tempSclumps, puno, R, pu, SM, SM_out, spec, 0);
                     }
+
+                spec[isp].update_penalty_components();
             }
         }
 
@@ -2106,6 +2092,9 @@ namespace marxan {
         rTemperature = 1;
         uniform_int_distribution<int> int_range(0, puno - 1);
 
+        for (sspecies& spec_it : spec)
+            spec_it.update_penalty_components();
+
         for (itime = 1; itime <= anneal.iterations; itime++)
         {
             // Choose random pu. If PU is set > 1 then that pu is fixed and cannot be changed.
@@ -2116,7 +2105,7 @@ namespace marxan {
 
             itemp = R[ipu] == 1 ? -1 : 1;  /* Add or Remove PU ? */
             computeChangeScore(itime, ipu, spno, puno, pu, connections, spec, SM, SM_out, R, cm, itemp, change, reserve,
-                costthresh, tpf1, tpf2, (double)itime / (double)anneal.iterations, clumptype);
+                costthresh, tpf1, tpf2, (double)itime / (double)anneal.iterations, clumptype, true);
 
             /* Need to calculate Appropriate temperature in isGoodChange or another function */
             /* Upgrade temperature */

@@ -3,9 +3,10 @@
 #include <string>
 #include <vector>
 
-
 namespace marxan {
     using namespace std;
+
+    extern double computeSepPenalty(int ival, int itarget);
 
     typedef struct sclumps
     {
@@ -46,18 +47,22 @@ namespace marxan {
         double tamount_add;
         double tamount_remove;
         double penalty_mult_spf;
+        bool is_target;
 
         void update_penalty_components()
         {
             fractionAmount = 0.0;
             shortFall = 0.0;
+            is_target = target != 0.0;
+
             if (target > amount && target != 0)
             {
                 fractionAmount = (target - amount) / target;
                 shortFall = target - amount;
             }
+            
             // does this species have occurrence target?
-
+            
             if (targetocc > 0)
             {
                 if (targetocc > occurrence)
@@ -66,6 +71,9 @@ namespace marxan {
                 if (target && targetocc)
                     fractionAmount /= 2;
             }
+
+            if (sepnum)
+                fractionAmount += computeSepPenalty(separation, sepnum);
 
             tamount_add = 0.0;
             tamount_remove = 0.0;

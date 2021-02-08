@@ -36,7 +36,7 @@ namespace marxan {
     void computeChangeScore(int iIteration, int ipu, int spno, int puno, const vector<spustuff>& pu, const vector<sconnections>& connections,
         vector<sspecies>& spec, const vector<spu>& SM, vector<spu_out>& SM_out, const vector<int>& R, double cm, int imode,
         scost& change, scost& reserve, double costthresh, double tpf1, double tpf2,
-        double timeprop, int clumptype);
+        double timeprop, int clumptype, bool penalty_precomputed = false);
     void doChange(int ipu, int puno, vector<int>& R, scost& reserve, scost& change,
         const vector<spustuff>& pu, const vector<spu>& SM, vector<spu_out>& SM_out, vector<sspecies>& spec, const vector<sconnections>& connections,
         int imode, int clumptype, stringstream& logBuffer);
