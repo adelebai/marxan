@@ -23,10 +23,10 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Install OpenMP
         run: brew install libomp
-      - name: Crete bin directory
+      - name: Create bin directory
         run: mkdir bin
       - name: Build 
-        run: gcc-10 -O3 -std=c++17 -static -fopenmp *.cpp -o bin/marxan
+        run: gcc-10 -O3 -std=c++17  -fopenmp *.cpp /usr/local/opt/libomp/lib/libomp.a -o bin/marxan
       # g++-10 *.cpp /usr/local/opt/libomp/lib/libomp.a -o bin/marxan -Xclang -fopenmp -std=c++17  -O3
       - name: Zip 
         run: |
