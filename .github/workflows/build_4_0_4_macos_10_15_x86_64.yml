@@ -30,7 +30,9 @@ jobs:
           g++ *.cpp /usr/local/opt/libomp/lib/libomp.a -o bin/marxan -Xclang -fopenmp -std=c++17  -O3
       - name: Zip 
         run: |
-          zip /bin/marxan-4.0.4-macOS-10.15-x86-64.zip /bin/marxan
+          cd bin
+          zip marxan-4.0.4-macOS-10.15-x86-64.zip marxan
+          cd ..
 
       
       # Uploads build results to an artifact
