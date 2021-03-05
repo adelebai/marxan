@@ -1,4 +1,4 @@
-name: Build_4_0_4_MacOS_10_15_x86_64
+name: Build_4_0_5_MacOS_10_15_x86_64
 
 # Controls when the action will run. 
 on:
@@ -31,7 +31,7 @@ jobs:
       - name: Zip 
         run: |
           cd bin
-          zip marxan-4.0.4-macOS-10.15-x86-64.zip marxan
+          zip marxan-4.0.5-macOS-10.15-x86-64.zip marxan
           cd ..
       
       # Uploads build results to an artifact
