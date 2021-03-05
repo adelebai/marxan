@@ -1,0 +1,39 @@
+name: Build_4_0_5_Linux_x86_64
+
+# Controls when the action will run. 
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out repository
+      - uses: actions/checkout@v2
+        with:
+          ref: build-4.0.5
+
+
+      # Runs a set of commands using the runners shell
+      - name: Crete bin directory
+        run: mkdir bin
+      - name: Build 
+        run: |
+          g++ -O3 -std=c++17 -static -fopenmp *.cpp -o bin/marxan
+      - name: Zip 
+        run: |
+          cd bin
+          zip marxan-4.0.5-linux-x86-64.zip marxan
+          cd ..
+      
+      # Uploads build results to an artifact
+      - uses: actions/upload-artifact@v2
+        with:
+          name: marxan-4.0.5-linux-x86-64
+          path: bin/marxan-4.0.5-linux-x86-64.zip
